@@ -1,5 +1,4 @@
-import { Icon, Layout } from "@stellar/design-system";
-import { useEffect, useState } from "react";
+import { Button, Icon, Layout } from "@stellar/design-system";
 import ConnectAccount from "./components/ConnectAccount.tsx";
 import { ThemeToggle } from "./components/ThemeToggle.tsx";
 import { Routes, Route, Outlet, NavLink } from "react-router-dom";
@@ -12,21 +11,44 @@ import { AdminPage } from "./pages/AdminPage.tsx";
 import { NotificationProvider } from "./components/NotificationSystem.tsx";
 
 const AppLayout: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navItems = [
+    { key: "verify", path: "/verify", label: "Verify" },
+    { key: "borrow", path: "/borrow", label: "Borrow" },
+    { key: "lend", path: "/lend", label: "Lend" },
+    { key: "admin", path: "/admin", label: "Admin" },
+    {
+      key: "debug",
+      path: "/debug",
+      label: "Debug",
+      icon: () => <Icon.Code02 size="md" />,
+    },
+  ];
 
-  useEffect(() => {
-    if (isMenuOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-    return undefined;
-  }, [isMenuOpen]);
-
-  const handleLinkClick = () => setIsMenuOpen(false);
-  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+  const renderNavButtons = (
+    variant: React.ComponentProps<typeof Button>["variant"],
+    size: React.ComponentProps<typeof Button>["size"],
+    buttonClassName?: string,
+  ) =>
+    navItems.map(({ key, path, label, icon }) => (
+      <NavLink key={key} to={path} className="nav-link">
+        {({ isActive }) => (
+          <Button
+            variant={variant}
+            size={size}
+            disabled={isActive}
+            className={[
+              icon ? "nav-button--with-icon" : "",
+              buttonClassName ?? "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            {icon ? <span className="nav-button__icon">{icon()}</span> : null}
+            {label}
+          </Button>
+        )}
+      </NavLink>
+    ));
 
   return (
     <main>
@@ -34,96 +56,20 @@ const AppLayout: React.FC = () => {
         projectId="RemitLend"
         projectTitle="RemitLend"
         contentRight={
-          <div className="header-right">
-            <button
-              type="button"
-              className="header-menu-toggle"
-              onClick={toggleMenu}
-              aria-label="Toggle navigation menu"
-              aria-expanded={isMenuOpen}
-            >
-              <Icon.Menu01 size="lg" />
-            </button>
-            <div className={`header-collapsible ${isMenuOpen ? "open" : ""}`}>
-              <nav className="header-nav">
-                <NavLink
-                  to="/verify"
-                  className="header-link"
-                  onClick={handleLinkClick}
-                >
-                  {({ isActive }) => (
-                    <div
-                      className={`header-menu-item ${isActive ? "active" : ""}`}
-                    >
-                      Verify
-                    </div>
-                  )}
-                </NavLink>
-                <NavLink
-                  to="/borrow"
-                  className="header-link"
-                  onClick={handleLinkClick}
-                >
-                  {({ isActive }) => (
-                    <div
-                      className={`header-menu-item ${isActive ? "active" : ""}`}
-                    >
-                      Borrow
-                    </div>
-                  )}
-                </NavLink>
-                <NavLink
-                  to="/lend"
-                  className="header-link"
-                  onClick={handleLinkClick}
-                >
-                  {({ isActive }) => (
-                    <div
-                      className={`header-menu-item ${isActive ? "active" : ""}`}
-                    >
-                      Lend
-                    </div>
-                  )}
-                </NavLink>
-                <NavLink
-                  to="/admin"
-                  className="header-link"
-                  onClick={handleLinkClick}
-                >
-                  {({ isActive }) => (
-                    <div
-                      className={`header-menu-item ${isActive ? "active" : ""}`}
-                    >
-                      Admin
-                    </div>
-                  )}
-                </NavLink>
-                <NavLink
-                  to="/debug"
-                  className="header-link"
-                  onClick={handleLinkClick}
-                >
-                  {({ isActive }) => (
-                    <div
-                      className={`header-menu-item ${isActive ? "active" : ""}`}
-                    >
-                      <Icon.Code02 size="sm" />
-                      Debug
-                    </div>
-                  )}
-                </NavLink>
-              </nav>
-              <div className="header-actions">
-                <ThemeToggle />
-                <ConnectAccount />
-              </div>
+          <>
+            <nav className="header-nav header-nav--desktop">
+              {renderNavButtons("tertiary", "md")}
+            </nav>
+            <div className="header-controls">
+              <ThemeToggle />
+              <ConnectAccount />
             </div>
-          </div>
+          </>
         }
       />
-      {isMenuOpen && (
-        <div className="header-menu-backdrop" onClick={toggleMenu} />
-      )}
+      <nav className="header-nav header-nav--mobile">
+        {renderNavButtons("secondary", "sm", "mobile-nav-button")}
+      </nav>
       <Outlet />
       <Layout.Footer>
         <span>
