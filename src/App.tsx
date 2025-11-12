@@ -1,4 +1,5 @@
 import { Button, Icon, Layout } from "@stellar/design-system";
+import { useEffect, useState } from "react";
 import ConnectAccount from "./components/ConnectAccount.tsx";
 import { ThemeToggle } from "./components/ThemeToggle.tsx";
 import { Routes, Route, Outlet, NavLink } from "react-router-dom";
@@ -10,99 +11,136 @@ import VerificationFlow from "./pages/VerificationFlow.tsx";
 import { AdminPage } from "./pages/AdminPage.tsx";
 import { NotificationProvider } from "./components/NotificationSystem.tsx";
 
-const AppLayout: React.FC = () => (
-  <main>
-    <Layout.Header
-      projectId="RemitLend"
-      projectTitle="RemitLend"
-      contentRight={
-        <>
-          <nav style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-            <NavLink
-              to="/verify"
-              style={{
-                textDecoration: "none",
-              }}
+const AppLayout: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+    return undefined;
+  }, [isMenuOpen]);
+
+  const handleLinkClick = () => setIsMenuOpen(false);
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+  return (
+    <main>
+      <Layout.Header
+        projectId="RemitLend"
+        projectTitle="RemitLend"
+        contentRight={
+          <div className="header-right">
+            <button
+              type="button"
+              className="header-menu-toggle"
+              onClick={toggleMenu}
+              aria-label="Toggle navigation menu"
+              aria-expanded={isMenuOpen}
             >
-              {({ isActive }) => (
-                <Button variant="tertiary" size="md" disabled={isActive}>
-                  Verify
-                </Button>
-              )}
-            </NavLink>
-            <NavLink
-              to="/borrow"
-              style={{
-                textDecoration: "none",
-              }}
-            >
-              {({ isActive }) => (
-                <Button variant="tertiary" size="md" disabled={isActive}>
-                  Borrow
-                </Button>
-              )}
-            </NavLink>
-            <NavLink
-              to="/lend"
-              style={{
-                textDecoration: "none",
-              }}
-            >
-              {({ isActive }) => (
-                <Button variant="tertiary" size="md" disabled={isActive}>
-                  Lend
-                </Button>
-              )}
-            </NavLink>
-            <NavLink
-              to="/admin"
-              style={{
-                textDecoration: "none",
-              }}
-            >
-              {({ isActive }) => (
-                <Button variant="tertiary" size="md" disabled={isActive}>
-                  Admin
-                </Button>
-              )}
-            </NavLink>
-            <NavLink
-              to="/debug"
-              style={{
-                textDecoration: "none",
-              }}
-            >
-              {({ isActive }) => (
-                <Button variant="tertiary" size="md" disabled={isActive}>
-                  <Icon.Code02 size="md" />
-                  Debug
-                </Button>
-              )}
-            </NavLink>
-          </nav>
-          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-            <ThemeToggle />
-            <ConnectAccount />
+              <Icon.Menu01 size="lg" />
+            </button>
+            <div className={`header-collapsible ${isMenuOpen ? "open" : ""}`}>
+              <nav className="header-nav">
+                <NavLink
+                  to="/verify"
+                  className="header-link"
+                  onClick={handleLinkClick}
+                >
+                  {({ isActive }) => (
+                    <div
+                      className={`header-menu-item ${isActive ? "active" : ""}`}
+                    >
+                      Verify
+                    </div>
+                  )}
+                </NavLink>
+                <NavLink
+                  to="/borrow"
+                  className="header-link"
+                  onClick={handleLinkClick}
+                >
+                  {({ isActive }) => (
+                    <div
+                      className={`header-menu-item ${isActive ? "active" : ""}`}
+                    >
+                      Borrow
+                    </div>
+                  )}
+                </NavLink>
+                <NavLink
+                  to="/lend"
+                  className="header-link"
+                  onClick={handleLinkClick}
+                >
+                  {({ isActive }) => (
+                    <div
+                      className={`header-menu-item ${isActive ? "active" : ""}`}
+                    >
+                      Lend
+                    </div>
+                  )}
+                </NavLink>
+                <NavLink
+                  to="/admin"
+                  className="header-link"
+                  onClick={handleLinkClick}
+                >
+                  {({ isActive }) => (
+                    <div
+                      className={`header-menu-item ${isActive ? "active" : ""}`}
+                    >
+                      Admin
+                    </div>
+                  )}
+                </NavLink>
+                <NavLink
+                  to="/debug"
+                  className="header-link"
+                  onClick={handleLinkClick}
+                >
+                  {({ isActive }) => (
+                    <div
+                      className={`header-menu-item ${isActive ? "active" : ""}`}
+                    >
+                      <Icon.Code02 size="sm" />
+                      Debug
+                    </div>
+                  )}
+                </NavLink>
+              </nav>
+              <div className="header-actions">
+                <ThemeToggle />
+                <ConnectAccount />
+              </div>
+            </div>
           </div>
-        </>
-      }
-    />
-    <Outlet />
-    <Layout.Footer>
-      <span>
-        © {new Date().getFullYear()} RemitLend. Licensed under the{" "}
-        <a
-          href="http://www.apache.org/licenses/LICENSE-2.0"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Apache License, Version 2.0
-        </a>
-        .
-      </span>
-    </Layout.Footer>
-  </main>
-);
+        }
+      />
+      {isMenuOpen && (
+        <div className="header-menu-backdrop" onClick={toggleMenu} />
+      )}
+      <Outlet />
+      <Layout.Footer>
+        <span>
+          © {new Date().getFullYear()} RemitLend. Licensed under the{" "}
+          <a
+            href="http://www.apache.org/licenses/LICENSE-2.0"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Apache License, Version 2.0
+          </a>
+          .
+        </span>
+      </Layout.Footer>
+    </main>
+  );
+};
 
 function App() {
   return (
