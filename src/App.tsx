@@ -1,4 +1,4 @@
-import { Button, Icon, Layout } from "@stellar/design-system";
+import { Icon, Layout } from "@stellar/design-system";
 import { useEffect, useState } from "react";
 import ConnectAccount from "./components/ConnectAccount.tsx";
 import { ThemeToggle } from "./components/ThemeToggle.tsx";
